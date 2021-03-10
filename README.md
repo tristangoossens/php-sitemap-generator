@@ -1,7 +1,10 @@
 ## Sitemap generator
 
-PHP script that generates a XML sitemap with the given config options. I made this script because there were not a lot of open source
-sitemap generators out there.
+---
+
+Object based PHP script that generates a XML sitemap with the given config options. I made this script because I wanted to automate making a sitemap for google indexing and because there were not a lot of open source sitemap generators out there.
+
+Sitemap format: [http://www.sitemaps.org/protocol.html](http://www.sitemaps.org/protocol.html)
 
 ### Features
 
@@ -76,4 +79,34 @@ You can alter some of the configs settings by changing the config values.
 
 // Date changed (today's date)
 "LAST_UPDATED" => date('Y-m-d'),
+```
+
+### Output
+
+Example output when generating a sitemap using this script
+
+```XML
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- 3 total links-->
+  <!-- PHP-sitemap-generator by https://github.com/tristangoossens -->
+  <url>
+    <loc>https://student-laptop.nl/</loc>
+    <lastmod>2021-03-10</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1</priority>
+  </url>
+  <url>
+    <loc>https://student-laptop.nl/underConstruction</loc>
+    <lastmod>2021-03-10</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1</priority>
+  </url>
+  <url>
+    <loc>https://student-laptop.nl/article?article_id=1</loc>
+    <lastmod>2021-03-10</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1</priority>
+  </url>
+</urlset>
 ```
