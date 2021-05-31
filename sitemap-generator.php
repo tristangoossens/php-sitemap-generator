@@ -156,6 +156,7 @@ class SitemapGenerator
 		}
 
 		$xml .= "</urlset>";
+		$xml = str_replace('&', '&amp;', $xml);
 
 		// Format string to XML
 		$dom = new DOMDocument;
