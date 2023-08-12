@@ -1,7 +1,6 @@
 <?php
-
-class SitemapGenerator
-{
+ob_implicit_flush(true);
+class SitemapGenerator {
 	// Config file with crawler/sitemap options
 	private $config;
 
@@ -15,18 +14,26 @@ class SitemapGenerator
 	// File where sitemap is written to.
 	private $sitemap_file;
 
+	private $_isCLI;
+	private $_verbose = false;
+
 	// Constructor sets the given file for internal use
-	public function __construct($conf)
-	{
+	public function __construct($conf) {
 		// Setup class variables using the config
 		$this->config = $conf;
 		$this->scanned = [];
 		$this->site_url_base = parse_url($this->config['SITE_URL'])['scheme'] . "://" . parse_url($this->config['SITE_URL'])['host'];
 		$this->sitemap_file = fopen($this->config['SAVE_LOC'], "w");
+
+
+		if (isset($this->config["VERBOSE"]) && filter_var($this->config["VERBOSE"], FILTER_VALIDATE_BOOL)) {
+			$this->_verbose = (bool)$this->config["VERBOSE"];
+		}
+
+		$this->_isCLI = (function_exists("php_sapi_name") && php_sapi_name() === "cli") ? true : false;
 	}
 
-	public function GenerateSitemap()
-	{
+	public function GenerateSitemap() {
 		// Call the recursive crawl function with the start url.
 		$this->crawlPage($this->config['SITE_URL']);
 
@@ -35,8 +42,7 @@ class SitemapGenerator
 	}
 
 	// Get the html content of a page and return it as a dom object
-	private function getHtml($url)
-	{
+	private function getHtml($url) {
 		// Get html from the given page
 		$curl = curl_init();
 		curl_setopt($curl, CURLOPT_URL, $url);
@@ -52,8 +58,7 @@ class SitemapGenerator
 	}
 
 	// Recursive function that crawls a page's anchor tags and store them in the scanned array.
-	private function crawlPage($page_url)
-	{
+	private function crawlPage($page_url) {
 		$url = filter_var($page_url, FILTER_SANITIZE_URL);
 
 		// Check if the url is invalid or if the page is already scanned;
@@ -64,7 +69,7 @@ class SitemapGenerator
 		// Add the page url to the scanned array
 		array_push($this->scanned, $page_url);
 
-		// Get the html content from the 
+		// Get the html content from the
 		$html = $this->getHtml($url);
 		$anchors = $html->getElementsByTagName('a');
 
@@ -116,6 +121,9 @@ class SitemapGenerator
 
 			// Call the function again with the new URL
 			if (!$found) {
+				if ($this->_isCLI && $this->_verbose) {
+					echo "\nCrawling next URL: {$next_url}";
+				}
 				$this->crawlPage($next_url);
 			}
 		}
@@ -124,21 +132,27 @@ class SitemapGenerator
 	// Convert a relative link to a absolute link
 	// Example: Relative /articles
 	//			Absolute https://student-laptop.nl/articles
-	private function convertRelativeToAbsolute($page_base_url, $link)
-	{
+	private function convertRelativeToAbsolute($page_base_url, $link) {
 		$first_character = substr($link, 0, 1);
 		if ($first_character == "?" || $first_character == "#") {
 			return $page_base_url . $link;
 		} else if ($first_character != "/") {
 			return $this->site_url_base . "/" . $link;
 		} else {
+			$baseUrlParts = parse_url($page_base_url);
+			$linkParts = parse_url($link);
+
+			if (isset($linkParts["host"]) && $linkParts["host"] == $baseUrlParts["host"]) {
+				return $this->site_url_base . $linkParts["path"];
+			}
+			if (isset($linkParts["scheme"]))
+				return $link;
 			return $this->site_url_base . $link;
 		}
 	}
 
 	// Function to generate a Sitemap with the given pages array where the script has run through
-	private function generateFile($pages)
-	{
+	private function generateFile($pages) {
 		$xml = '<?xml version="1.0" encoding="UTF-8"?>
         <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 		<!-- ' . count($pages) . ' total pages-->
@@ -146,13 +160,20 @@ class SitemapGenerator
 
 
 		// Print the amount of pages
-		echo count($pages);
+		// if ($this->_isCLI && $this->_verbose) {
+		echo "\n" . count($pages) . " Pages included in the sitemap\n";
+		// }
 
 		foreach ($pages as $page) {
 			$xml .= "<url><loc>" . $page . "</loc>
             <lastmod>" . $this->config['LAST_UPDATED'] . "</lastmod>
             <changefreq>" . $this->config['CHANGE_FREQUENCY'] . "</changefreq>
             <priority>" . $this->config['PRIORITY'] . "</priority></url>";
+
+			if ($this->_isCLI && $this->_verbose) {
+				echo "\nAdding {$page} to sitemap";
+				sleep(1);
+			}
 		}
 
 		$xml .= "</urlset>";
