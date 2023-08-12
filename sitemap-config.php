@@ -3,7 +3,7 @@
 return array(
     // Site to crawl and create a sitemap for.
     // <Syntax> https://www.your-domain-name.com/ or http://www.your-domain-name.com/
-    "SITE_URL" => "https://www.snipeauction.com/",
+    "SITE_URL" => "https://www.example.com/",
 
     // Boolean for crawling external links.
     // <Example> *Domain = https://www.student-laptop.nl* , *Link = https://www.google.com* <When false google will not be crawled>
@@ -22,7 +22,7 @@ return array(
     // Array with absolute links or keywords for the pages to skip when crawling the given SITE_URL.
     // <Example> https://student-laptop.nl/info/laptops or you can just input student-laptop.nl/info/ and it will not crawl anything in that directory
     // Try to be as specific as you can so you dont skip 300 pages
-    "KEYWORDS_TO_SKIP" => array(),
+    "KEYWORDS_TO_SKIP" => ["/privacy"],
 
     // Location + filename where the sitemap will be saved.
     "SAVE_LOC" => "sitemap.xml",
@@ -31,8 +31,10 @@ return array(
     "PRIORITY" => 1,
 
     // Static update frequency
-    "CHANGE_FREQUENCY" => "daily",
+    "CHANGE_FREQUENCY" => "monthly",
 
     // Date changed (today's date)
     "LAST_UPDATED" => date('Y-m-d'),
+
+    "VERBOSE" => true,
 );
