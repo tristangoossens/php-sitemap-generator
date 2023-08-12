@@ -156,7 +156,7 @@ class SitemapGenerator {
 		$xml = '<?xml version="1.0" encoding="UTF-8"?>
         <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 		<!-- ' . count($pages) . ' total pages-->
-		<!-- PHP-sitemap-generator by https://github.com/abhi36 -->';
+		<!-- PHP-sitemap-generator by https://github.com/tristangoossens -->';
 
 
 		// Print the amount of pages
